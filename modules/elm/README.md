@@ -1,7 +1,9 @@
 # Employee Leave Management (ELM) — DeepSeek-Coder 6.7B pilot
 
 This is a limited backend pilot for Fusion ERP Lab Assignment 6, not a complete
-implementation of the ELM specification.
+implementation of the ELM specification. The branch is associated with a DeepSeek Coder
+6.7B trial, but these GitHub edits were not emitted by a live local Ollama inference in
+this session; this repository diff is not raw model output.
 
 ## Included
 - Leave types CL, RH, SCL, EL, COL, and VL.
