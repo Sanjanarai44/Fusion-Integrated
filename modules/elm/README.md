@@ -24,13 +24,14 @@ implementation of the ELM specification.
 ## Known limitations
 This pilot does not yet implement the full ELM workflow. It does not yet include
 institutional hierarchy/role authorization, API serializers and views, frontend pages,
-a locally generated/verified migration, atomic balance reservation and debit, cross-year
+a migration verified by running Django migration checks, atomic balance reservation and debit, cross-year
 balance splitting, full calendar publication lifecycle, RH effective-date/version
 management, VL-to-EL conversion, resumption and extension, post-approval cancellation
 workflow, offline sanctioned records, SLA reminders/escalation, or export/print views.
 Employee-category eligibility and final sanction routing need integration with the
-institution's authoritative configuration. Tests have not been executed in the remote
-repository environment; run them locally before treating the implementation as verified.
+institution's authoritative configuration. The initial migration was added manually but
+has not been verified by running Django migration checks. Tests have not been executed in
+the remote repository environment; run them locally before treating the implementation as verified.
 
 ## Tooling for the pilot
 - Model: DeepSeek Coder 6.7B (deepseek-coder:6.7b, Q4_0)
