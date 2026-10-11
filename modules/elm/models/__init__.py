@@ -31,8 +31,7 @@ class LeaveType(models.Model):
 
 class LeavePolicy(models.Model):
     """Effective policy values; policy changes are data, not hard-coded constants."""
-    leave_type = models.ForeignKey(LeaveType, on_delete=models.PROTECT,
-                                   related_name="policies")
+    leave_type = models.ForeignKey(LeaveType, on_delete=models.PROTECT, related_name="policies")
     employee_category = models.CharField(max_length=40, default="all")
     annual_entitlement = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     carry_forward = models.BooleanField(default=False)
@@ -42,12 +41,10 @@ class LeavePolicy(models.Model):
 
     class Meta:
         ordering = ["leave_type__code", "effective_from"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["leave_type", "employee_category", "effective_from"],
-                name="elm_policy_effective_start_unique",
-            )
-        ]
+        constraints = [models.UniqueConstraint(
+            fields=["leave_type", "employee_category", "effective_from"],
+            name="elm_policy_effective_start_unique",
+        )]
 
     def clean(self):
         super().clean()
@@ -73,8 +70,7 @@ class CalendarDay(models.Model):
 
 class LeaveBalance(models.Model):
     employee_id = models.PositiveBigIntegerField(db_index=True)
-    leave_type = models.ForeignKey(LeaveType, on_delete=models.PROTECT,
-                                   related_name="balances")
+    leave_type = models.ForeignKey(LeaveType, on_delete=models.PROTECT, related_name="balances")
     year = models.PositiveSmallIntegerField(default=timezone.localdate().year)
     entitled_days = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     used_days = models.DecimalField(max_digits=6, decimal_places=2, default=0)
@@ -112,13 +108,11 @@ class LeaveApplication(models.Model):
         SECOND = "second", "Second Half"
 
     employee_id = models.PositiveBigIntegerField(db_index=True)
-    leave_type = models.ForeignKey(LeaveType, on_delete=models.PROTECT,
-                                   related_name="applications")
+    leave_type = models.ForeignKey(LeaveType, on_delete=models.PROTECT, related_name="applications")
     start_date = models.DateField()
     end_date = models.DateField()
     is_half_day = models.BooleanField(default=False)
-    half_day_period = models.CharField(max_length=6, choices=HalfDayPeriod.choices,
-                                       blank=True)
+    half_day_period = models.CharField(max_length=6, choices=HalfDayPeriod.choices, blank=True)
     reason = models.TextField()
     station_leave = models.BooleanField(default=False)
     status = models.CharField(max_length=24, choices=Status.choices, default=Status.DRAFT)
@@ -132,8 +126,8 @@ class LeaveApplication(models.Model):
     class Meta:
         ordering = ["-created_at"]
         indexes = [
-            models.Index(fields=["employee_id", "status"]),
-            models.Index(fields=["start_date", "end_date"]),
+            models.Index(fields=["employee_id", "status"], name="elm_emp_status_idx"),
+            models.Index(fields=["start_date", "end_date"], name="elm_dates_idx"),
         ]
 
     def clean(self):
