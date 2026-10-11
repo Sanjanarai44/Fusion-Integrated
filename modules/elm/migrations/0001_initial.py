@@ -1,7 +1,6 @@
 # Generated manually for the ELM pilot. Verify with makemigrations --check.
 from django.db import migrations, models
 import django.db.models.deletion
-import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -56,7 +55,7 @@ class Migration(migrations.Migration):
             fields=[
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
                 ("employee_id", models.PositiveBigIntegerField(db_index=True)),
-                ("year", models.PositiveSmallIntegerField(default=django.utils.timezone.localdate().year)),
+                ("year", models.PositiveSmallIntegerField(default=2026)),
                 ("entitled_days", models.DecimalField(decimal_places=2, default=0, max_digits=6)),
                 ("used_days", models.DecimalField(decimal_places=2, default=0, max_digits=6)),
                 ("reserved_days", models.DecimalField(decimal_places=2, default=0, max_digits=6)),
