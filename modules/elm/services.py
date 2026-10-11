@@ -1,12 +1,9 @@
-"""Business rules for ELM's first backend pilot.
-
-These helpers keep calendar and workflow policy outside model methods so rules can
-be tested independently and extended without hiding side effects.
-"""
+"""Business rules for ELM's first backend pilot."""
 from datetime import timedelta
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 from modules.elm.models import CalendarDay, LeaveApplication, LeaveBalance, LeaveType, SubstituteNomination
 
@@ -63,7 +60,9 @@ def validate_application(application):
     )
     if application.pk:
         overlap = overlap.exclude(pk=application.pk)
-    if overlap.exists() and not application.is_half_day:
+    if application.is_half_day:
+        overlap = overlap.filter(Q(is_half_day=False) | Q(half_day_period=application.half_day_period))
+    if overlap.exists():
         raise ValidationError("Application overlaps another pending or approved leave.")
 
     requested = count_leave_days(
@@ -75,30 +74,17 @@ def validate_application(application):
     ).first()
     if balance is None or balance.available_days < requested:
         raise ValidationError({"leave_type": "No sufficient recorded balance for this leave year."})
-
-    if application.is_half_day and code == LeaveType.Code.CL:
-        same_day = LeaveApplication.objects.filter(
-            employee_id=application.employee_id, leave_type=leave_type,
-            start_date=application.start_date, end_date=application.end_date,
-            is_half_day=True, half_day_period=application.half_day_period,
-            status__in=active_statuses,
-        )
-        if application.pk:
-            same_day = same_day.exclude(pk=application.pk)
-        if same_day.exists():
-            raise ValidationError({"half_day_period": "This half of the day is already requested."})
     return requested
 
 
 def nominate_substitute(application, substitute_employee_id):
     if substitute_employee_id == application.employee_id:
         raise ValidationError({"substitute_employee_id": "Applicant cannot be their own substitute."})
-    nomination, _ = SubstituteNomination.objects.update_or_create(
+    return SubstituteNomination.objects.update_or_create(
         application=application,
         defaults={"substitute_employee_id": substitute_employee_id,
                   "status": SubstituteNomination.Status.PENDING, "responded_at": None},
-    )
-    return nomination
+    )[0]
 
 
 def respond_to_substitute(nomination, *, accepted):
